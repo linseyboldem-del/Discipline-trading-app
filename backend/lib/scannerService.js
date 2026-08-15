@@ -21,13 +21,9 @@ async function loadCandles(pair, timeframe, limit = 150) {
       close: Number(c.close),
       volume: c.volume,
     }))
-    .reverse(); // ascending order for the detection functions
+    .reverse();
 }
 
-/**
- * Runs the scanner for a single user based on their scanner_config row.
- * Returns the list of signal candidates produced (including skipped ones).
- */
 async function runScanForUser(userId) {
   const { data: config, error: configErr } = await supabaseAdmin
     .from("scanner_config")
@@ -67,6 +63,7 @@ async function runScanForUser(userId) {
           take_profit: result.takeProfit,
           planned_rr: result.plannedRR,
           confluences: result.confluences,
+          reasoning: result.reasoning,
           candle_time: new Date(result.candleTime).toISOString(),
         },
         { onConflict: "user_id,pair,model,candle_time", ignoreDuplicates: true }
@@ -79,8 +76,6 @@ async function runScanForUser(userId) {
       continue;
     }
 
-    // Only notify on genuinely new rows (upsert with ignoreDuplicates
-    // returns null when it hit a conflict and skipped the insert)
     if (inserted && !inserted.notified) {
       const gradeRank = { A: 3, B: 2, C: 1 };
       const shouldNotify =

@@ -5,11 +5,6 @@ const { findLatestFVG } = require("./fvg");
 const { getSession } = require("./killzone");
 const { gradeSetup } = require("./grading");
 
-/**
- * @param {object} candlesByTimeframe - { D1: [...], H4: [...], M15: [...] }
- * @param {object} opts - { minRR }
- * @returns signal candidate object, or null if nothing qualifies
- */
 function analyzePair(pair, candlesByTimeframe, opts = {}) {
   const htfCandles = candlesByTimeframe.D1?.length ? candlesByTimeframe.D1 : candlesByTimeframe.H4;
   const entryCandles = candlesByTimeframe.M15 || candlesByTimeframe.H1;
@@ -32,8 +27,6 @@ function analyzePair(pair, candlesByTimeframe, opts = {}) {
   const lastCandle = entryCandles[entryCandles.length - 1];
   const session = getSession(new Date(lastCandle.time));
 
-  // Rough entry/SL/TP: entry at last close, SL beyond the OB or the
-  // structure break level, TP at the next opposing liquidity pool.
   let entry = lastCandle.close;
   let stopLoss = null;
   let takeProfit = null;
@@ -57,6 +50,8 @@ function analyzePair(pair, candlesByTimeframe, opts = {}) {
     if (risk > 0) plannedRR = Number((reward / risk).toFixed(2));
   }
 
+  const minRR = opts.minRR ?? 2;
+
   const graded = gradeSetup({
     htfBiasDirection,
     structureShift,
@@ -66,12 +61,73 @@ function analyzePair(pair, candlesByTimeframe, opts = {}) {
     fvg,
     session,
     plannedRR,
-    minRR: opts.minRR ?? 2,
+    minRR,
   });
 
   if (!graded.grade) {
     return { pair, skipped: true, reason: "No qualifying setup", details: graded };
   }
+
+  const reasoning = {
+    htfBias: {
+      direction: htfBiasDirection,
+      basis: `${candlesByTimeframe.D1?.length ? "Daily" : "H4"} swing structure (last ${htfSwings.length} swing points)`,
+    },
+    session: { name: session, inKillZone: ["london", "ny_am", "ny_pm"].includes(session) },
+    structureShift: structureShift
+      ? {
+          type: structureShift.type,
+          direction: structureShift.direction,
+          brokenLevel: Number(structureShift.brokenLevel.toFixed(5)),
+          detail:
+            structureShift.type === "BOS"
+              ? `Price closed beyond the prior swing ${structureShift.direction === "bullish" ? "high" : "low"} at ${structureShift.brokenLevel.toFixed(5)}, continuing the existing trend.`
+              : `Price broke structure against the prevailing trend at ${structureShift.brokenLevel.toFixed(5)} — first sign of a possible reversal.`,
+        }
+      : null,
+    liquiditySweep: sweep
+      ? {
+          direction: sweep.direction,
+          sweptPrice: Number(sweep.sweptPrice.toFixed(5)),
+          poolType: sweep.pool.type,
+          detail: `Price wicked through resting ${sweep.pool.type === "sell_side" ? "sell-side" : "buy-side"} liquidity at ${sweep.sweptPrice.toFixed(5)} and closed back on the other side — classic stop-hunt signature.`,
+        }
+      : null,
+    orderBlock: orderBlock
+      ? {
+          direction: orderBlock.direction,
+          zone: [Number(orderBlock.low.toFixed(5)), Number(orderBlock.high.toFixed(5))],
+          detail: `Last ${orderBlock.direction === "bullish" ? "down" : "up"}-close candle before a displacement leg, zone ${orderBlock.low.toFixed(5)}–${orderBlock.high.toFixed(5)}.`,
+        }
+      : null,
+    breaker:
+      breaker?.invalidated
+        ? {
+            direction: breaker.direction,
+            zone: [Number(breaker.low.toFixed(5)), Number(breaker.high.toFixed(5))],
+            detail: `Former order block was closed through and has flipped role — price later returned to retest it as a breaker.`,
+          }
+        : null,
+    fvg: fvg
+      ? {
+          direction: fvg.direction,
+          zone: [Number(fvg.bottom.toFixed(5)), Number(fvg.top.toFixed(5))],
+          detail: `3-candle imbalance between ${fvg.bottom.toFixed(5)} and ${fvg.top.toFixed(5)} — price is expected to react here before continuing.`,
+        }
+      : null,
+    riskReward: {
+      planned: plannedRR,
+      minimumRequired: minRR,
+      meetsMinimum: typeof plannedRR === "number" && plannedRR >= minRR,
+    },
+    score: graded.score,
+    gradeExplanation:
+      graded.grade === "A"
+        ? "Grade A: stacked confluence (FVG/OB overlap) + HTF bias aligned + inside a kill zone — the highest-conviction combination this scanner looks for."
+        : graded.grade === "B"
+        ? "Grade B: partial confluence with HTF bias alignment, but missing the full stack (e.g. no FVG/OB overlap, or outside a kill zone)."
+        : "Grade C: a single confluence factor only — treat as noise-level, mostly useful for tuning the scanner, not for trading.",
+  };
 
   return {
     pair,
@@ -86,6 +142,7 @@ function analyzePair(pair, candlesByTimeframe, opts = {}) {
     takeProfit,
     plannedRR,
     confluences: graded.confluences,
+    reasoning,
     candleTime: lastCandle.time,
   };
 }

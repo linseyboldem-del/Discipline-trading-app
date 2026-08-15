@@ -2,12 +2,40 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --color-bg: 15 17 21;
+  --color-panel: 22 26 33;
+  --color-border: 38 43 52;
+  --color-body: 243 244 246;
+  --color-muted: 156 163 175;
+  --color-gold: 201 162 39;
+  --color-good: 47 158 91;
+  --color-bad: 192 71 63;
+  --color-warn: 201 150 44;
+}
+
+:root.light {
+  --color-bg: 250 250 249;
+  --color-panel: 255 255 255;
+  --color-border: 225 227 230;
+  --color-body: 26 26 26;
+  --color-muted: 100 106 115;
+  --color-gold: 140 105 10;
+  --color-good: 21 128 61;
+  --color-bad: 185 28 28;
+  --color-warn: 161 98 7;
+}
+
 html, body, #root { height: 100%; }
-body { @apply bg-ink text-gray-100; font-family: ui-sans-serif, system-ui, -apple-system, sans-serif; }
+body {
+  @apply bg-ink text-body;
+  font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
 
 .card { @apply bg-panel border border-line rounded-xl p-5; }
 .btn { @apply px-4 py-2 rounded-lg font-medium transition-colors; }
-.btn-primary { @apply btn bg-gold text-ink hover:bg-yellow-500; }
-.btn-secondary { @apply btn bg-panel border border-line hover:bg-line; }
-.input { @apply bg-ink border border-line rounded-lg px-3 py-2 w-full focus:outline-none focus:border-gold; }
-.label { @apply text-xs uppercase tracking-wide text-gray-400 mb-1 block; }
+.btn-primary { @apply btn bg-gold text-black hover:brightness-110; }
+.btn-secondary { @apply btn bg-panel border border-line hover:bg-line text-body; }
+.input { @apply bg-ink border border-line rounded-lg px-3 py-2 w-full focus:outline-none focus:border-gold text-body; }
+.label { @apply text-xs uppercase tracking-wide text-muted mb-1 block; }

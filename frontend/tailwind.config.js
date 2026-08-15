@@ -4,13 +4,15 @@ export default {
   theme: {
     extend: {
       colors: {
-        ink: "#0f1115",
-        panel: "#161a21",
-        line: "#262b34",
-        gold: "#c9a227",
-        good: "#2f9e5b",
-        bad: "#c0473f",
-        warn: "#c9962c",
+        ink: "rgb(var(--color-bg) / <alpha-value>)",
+        panel: "rgb(var(--color-panel) / <alpha-value>)",
+        line: "rgb(var(--color-border) / <alpha-value>)",
+        gold: "rgb(var(--color-gold) / <alpha-value>)",
+        good: "rgb(var(--color-good) / <alpha-value>)",
+        bad: "rgb(var(--color-bad) / <alpha-value>)",
+        warn: "rgb(var(--color-warn) / <alpha-value>)",
+        body: "rgb(var(--color-body) / <alpha-value>)",
+        muted: "rgb(var(--color-muted) / <alpha-value>)",
       },
     },
   },

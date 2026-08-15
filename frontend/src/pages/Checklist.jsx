@@ -43,7 +43,7 @@ export default function Checklist() {
     <div className="max-w-2xl space-y-6">
       <div>
         <h2 className="text-xl font-semibold">Pre-Trade Checklist</h2>
-        <p className="text-sm text-gray-500">Run this before every entry. If it says stop, stop.</p>
+        <p className="text-sm text-muted">Run this before every entry. If it says stop, stop.</p>
       </div>
 
       <form onSubmit={handleSubmit} className="card space-y-4">
@@ -134,7 +134,7 @@ export default function Checklist() {
           {result.blocked.length > 0 && (
             <div className="mb-3">
               <p className="text-xs uppercase text-bad font-medium mb-1">Blocking issues</p>
-              <ul className="list-disc list-inside text-sm text-gray-300 space-y-1">
+              <ul className="list-disc list-inside text-sm text-muted space-y-1">
                 {result.blocked.map((b, i) => (
                   <li key={i}>{b}</li>
                 ))}
@@ -147,7 +147,7 @@ export default function Checklist() {
               <p className="text-xs uppercase text-warn font-medium mb-1 flex items-center gap-1">
                 <ShieldAlert size={14} /> Warnings
               </p>
-              <ul className="list-disc list-inside text-sm text-gray-300 space-y-1">
+              <ul className="list-disc list-inside text-sm text-muted space-y-1">
                 {result.warnings.map((w, i) => (
                   <li key={i}>{w}</li>
                 ))}

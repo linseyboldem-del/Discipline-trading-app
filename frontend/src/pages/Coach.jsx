@@ -35,7 +35,7 @@ export default function Coach() {
           <h2 className="text-xl font-semibold flex items-center gap-2">
             <Brain className="text-gold" size={22} /> AI Coach
           </h2>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-muted">
             Analyzes your last 20 closed trades for patterns you can't see from inside your own head.
           </p>
         </div>
@@ -52,11 +52,11 @@ export default function Coach() {
 
       {history.length > 0 && (
         <div>
-          <h3 className="font-medium mb-3 text-gray-400">Previous reviews</h3>
+          <h3 className="font-medium mb-3 text-muted">Previous reviews</h3>
           <div className="space-y-3">
             {history.map((h) => (
               <details key={h.id} className="card">
-                <summary className="cursor-pointer text-sm text-gray-400">
+                <summary className="cursor-pointer text-sm text-muted">
                   {new Date(h.created_at).toLocaleString()} — {h.trade_ids.length} trades analyzed
                 </summary>
                 <div className="mt-3 whitespace-pre-wrap text-sm leading-relaxed">{h.feedback}</div>

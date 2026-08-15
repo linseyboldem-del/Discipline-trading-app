@@ -16,7 +16,7 @@ export default function Dashboard() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <p className="text-gray-500">Loading...</p>;
+  if (loading) return <p className="text-muted">Loading...</p>;
   if (error) return <p className="text-bad">{error}</p>;
   if (!summary) return null;
 
@@ -26,7 +26,7 @@ export default function Dashboard() {
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-semibold">Dashboard</h2>
-        <p className="text-sm text-gray-500">Your numbers, not your feelings about your numbers.</p>
+        <p className="text-sm text-muted">Your numbers, not your feelings about your numbers.</p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
@@ -64,11 +64,11 @@ function BreakdownTable({ title, data }) {
     <div className="card">
       <h3 className="font-medium mb-3">{title}</h3>
       {rows.length === 0 ? (
-        <p className="text-sm text-gray-500">No data yet.</p>
+        <p className="text-sm text-muted">No data yet.</p>
       ) : (
         <table className="w-full text-sm">
           <thead>
-            <tr className="text-left text-gray-500 text-xs uppercase">
+            <tr className="text-left text-muted text-xs uppercase">
               <th className="pb-2">Name</th>
               <th className="pb-2">Trades</th>
               <th className="pb-2">Win %</th>

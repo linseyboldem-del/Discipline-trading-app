@@ -33,7 +33,7 @@ export default function Login() {
       <form onSubmit={handleSubmit} className="card w-full max-w-sm space-y-4">
         <div>
           <h1 className="text-xl font-semibold text-gold">Discipline</h1>
-          <p className="text-sm text-gray-400">Your personal trading system. Only you have access.</p>
+          <p className="text-sm text-muted">Your personal trading system. Only you have access.</p>
         </div>
 
         <div>
@@ -68,7 +68,7 @@ export default function Login() {
         <button
           type="button"
           onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
-          className="text-xs text-gray-400 hover:text-gold w-full text-center"
+          className="text-xs text-muted hover:text-gold w-full text-center"
         >
           {mode === "signin" ? "First time? Create an account" : "Already have an account? Sign in"}
         </button>

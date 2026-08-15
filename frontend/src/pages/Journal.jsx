@@ -31,7 +31,7 @@ export default function Journal() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-semibold">Journal</h2>
-          <p className="text-sm text-gray-500">Every trade, logged the same way, every time.</p>
+          <p className="text-sm text-muted">Every trade, logged the same way, every time.</p>
         </div>
         <button className="btn-primary flex items-center gap-2" onClick={() => setShowForm((s) => !s)}>
           <Plus size={16} /> {showForm ? "Close" : "Add Trade"}
@@ -50,14 +50,14 @@ export default function Journal() {
 
       {error && <p className="text-bad">{error}</p>}
       {loading ? (
-        <p className="text-gray-500">Loading...</p>
+        <p className="text-muted">Loading...</p>
       ) : trades.length === 0 ? (
-        <p className="text-gray-500">No trades logged yet.</p>
+        <p className="text-muted">No trades logged yet.</p>
       ) : (
         <div className="card overflow-x-auto">
           <table className="w-full text-sm min-w-[900px]">
             <thead>
-              <tr className="text-left text-gray-500 text-xs uppercase">
+              <tr className="text-left text-muted text-xs uppercase">
                 <th className="pb-2 pr-3">Date</th>
                 <th className="pb-2 pr-3">Pair</th>
                 <th className="pb-2 pr-3">Dir</th>

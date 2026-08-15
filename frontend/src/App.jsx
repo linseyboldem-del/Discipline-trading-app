@@ -13,7 +13,7 @@ export default function App() {
   const { session, loading } = useAuth();
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center text-gray-500">Loading...</div>;
+    return <div className="min-h-screen flex items-center justify-center text-muted">Loading...</div>;
   }
 
   if (!session) {

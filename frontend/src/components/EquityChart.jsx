@@ -2,7 +2,7 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianG
 
 export default function EquityChart({ data }) {
   if (!data || data.length === 0) {
-    return <p className="text-sm text-gray-500">No closed trades yet — equity curve will appear here.</p>;
+    return <p className="text-sm text-muted">No closed trades yet — equity curve will appear here.</p>;
   }
 
   return (

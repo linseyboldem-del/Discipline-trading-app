@@ -130,13 +130,13 @@ export default function Settings() {
     }
   }
 
-  if (loading) return <p className="text-gray-500">Loading...</p>;
+  if (loading) return <p className="text-muted">Loading...</p>;
 
   return (
     <div className="max-w-2xl space-y-6">
       <div>
         <h2 className="text-xl font-semibold">Rules & Settings</h2>
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-muted">
           These are enforced by the pre-trade checklist. Set them once, honestly, before you're in a trade.
         </p>
       </div>
@@ -233,7 +233,7 @@ export default function Settings() {
 
       <div>
         <h2 className="text-xl font-semibold">Scanner & Signals</h2>
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-muted">
           Which pairs/timeframes the scanner watches, and how you're notified of Grade A setups.
         </p>
       </div>
