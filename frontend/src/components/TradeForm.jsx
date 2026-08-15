@@ -24,8 +24,32 @@ const blank = {
   notes: "",
 };
 
-export default function TradeForm({ onSaved, onCancel }) {
-  const [form, setForm] = useState(blank);
+// Pass `trade` to edit an existing row; omit it (or pass null) to create a new one.
+export default function TradeForm({ trade, onSaved, onCancel }) {
+  const isEditing = !!trade;
+
+  const [form, setForm] = useState(() =>
+    isEditing
+      ? {
+          trade_date: trade.trade_date,
+          pair: trade.pair,
+          direction: trade.direction,
+          session: trade.session,
+          model: trade.model,
+          entry: trade.entry ?? "",
+          stop_loss: trade.stop_loss ?? "",
+          take_profit: trade.take_profit ?? "",
+          risk_percent: trade.risk_percent ?? 1,
+          planned_rr: trade.planned_rr ?? 2,
+          realized_r: trade.realized_r ?? "",
+          outcome: trade.outcome,
+          emotion_before: trade.emotion_before ?? "calm",
+          emotion_after: trade.emotion_after ?? "",
+          followed_plan: trade.followed_plan ?? true,
+          notes: trade.notes ?? "",
+        }
+      : blank
+  );
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
@@ -38,13 +62,8 @@ export default function TradeForm({ onSaved, onCancel }) {
     setBusy(true);
     setError("");
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
       const payload = {
         ...form,
-        user_id: user.id,
         entry: form.entry === "" ? null : Number(form.entry),
         stop_loss: form.stop_loss === "" ? null : Number(form.stop_loss),
         take_profit: form.take_profit === "" ? null : Number(form.take_profit),
@@ -53,9 +72,33 @@ export default function TradeForm({ onSaved, onCancel }) {
         planned_rr: Number(form.planned_rr),
       };
 
-      const { error } = await supabase.from("trades").insert(payload);
+      if (isEditing) {
+        const { error } = await supabase.from("trades").update(payload).eq("id", trade.id);
+        if (error) throw error;
+      } else {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        const { error } = await supabase.from("trades").insert({ ...payload, user_id: user.id });
+        if (error) throw error;
+        setForm(blank);
+      }
+      onSaved?.();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleDelete() {
+    if (!isEditing) return;
+    if (!confirm(`Delete this ${trade.pair} trade from ${trade.trade_date}? This can't be undone.`)) return;
+    setBusy(true);
+    setError("");
+    try {
+      const { error } = await supabase.from("trades").delete().eq("id", trade.id);
       if (error) throw error;
-      setForm(blank);
       onSaved?.();
     } catch (err) {
       setError(err.message);
@@ -66,6 +109,11 @@ export default function TradeForm({ onSaved, onCancel }) {
 
   return (
     <form onSubmit={handleSubmit} className="card space-y-4">
+      {isEditing && (
+        <p className="text-xs text-muted uppercase tracking-wide">
+          Editing trade from {trade.trade_date}
+        </p>
+      )}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Field label="Date">
           <input type="date" className="input" value={form.trade_date} onChange={(e) => set("trade_date", e.target.value)} />
@@ -148,13 +196,23 @@ export default function TradeForm({ onSaved, onCancel }) {
 
       {error && <p className="text-bad text-sm">{error}</p>}
 
-      <div className="flex gap-3">
+      <div className="flex gap-3 items-center">
         <button type="submit" disabled={busy} className="btn-primary">
-          {busy ? "Saving..." : "Save Trade"}
+          {busy ? "Saving..." : isEditing ? "Save Changes" : "Save Trade"}
         </button>
         {onCancel && (
           <button type="button" onClick={onCancel} className="btn-secondary">
             Cancel
+          </button>
+        )}
+        {isEditing && (
+          <button
+            type="button"
+            onClick={handleDelete}
+            disabled={busy}
+            className="ml-auto text-sm text-bad hover:underline"
+          >
+            Delete trade
           </button>
         )}
       </div>

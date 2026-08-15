@@ -6,6 +6,7 @@ import { Plus } from "lucide-react";
 export default function Journal() {
   const [trades, setTrades] = useState([]);
   const [showForm, setShowForm] = useState(false);
+  const [editingTrade, setEditingTrade] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -26,25 +27,43 @@ export default function Journal() {
     loadTrades();
   }, []);
 
+  function openNewTradeForm() {
+    setEditingTrade(null);
+    setShowForm(true);
+  }
+
+  function openEditForm(trade) {
+    setEditingTrade(trade);
+    setShowForm(true);
+  }
+
+  function closeForm() {
+    setShowForm(false);
+    setEditingTrade(null);
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-semibold">Journal</h2>
-          <p className="text-sm text-muted">Every trade, logged the same way, every time.</p>
+          <p className="text-sm text-muted">
+            Every trade, logged the same way, every time. Click a row to edit or close it out.
+          </p>
         </div>
-        <button className="btn-primary flex items-center gap-2" onClick={() => setShowForm((s) => !s)}>
+        <button className="btn-primary flex items-center gap-2" onClick={showForm ? closeForm : openNewTradeForm}>
           <Plus size={16} /> {showForm ? "Close" : "Add Trade"}
         </button>
       </div>
 
       {showForm && (
         <TradeForm
+          trade={editingTrade}
           onSaved={() => {
-            setShowForm(false);
+            closeForm();
             loadTrades();
           }}
-          onCancel={() => setShowForm(false)}
+          onCancel={closeForm}
         />
       )}
 
@@ -73,7 +92,12 @@ export default function Journal() {
             </thead>
             <tbody>
               {trades.map((t) => (
-                <tr key={t.id} className="border-t border-line">
+                <tr
+                  key={t.id}
+                  onClick={() => openEditForm(t)}
+                  className="border-t border-line cursor-pointer hover:bg-ink transition-colors"
+                  title="Click to edit"
+                >
                   <td className="py-2 pr-3">{t.trade_date}</td>
                   <td className="py-2 pr-3">{t.pair}</td>
                   <td className="py-2 pr-3 capitalize">{t.direction}</td>
