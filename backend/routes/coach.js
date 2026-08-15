@@ -3,11 +3,24 @@ const Anthropic = require("@anthropic-ai/sdk");
 const { supabaseAdmin } = require("../db/supabaseAdmin");
 
 const router = express.Router();
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+// Created on-demand rather than at module load, so a missing key just
+// disables this one feature instead of crashing the whole server on boot.
+function getAnthropicClient() {
+  if (!process.env.ANTHROPIC_API_KEY) return null;
+  return new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+}
 
 // POST /api/coach/analyze
 // body: { limit?: number }  -- how many recent trades to analyze, default 20
 router.post("/analyze", async (req, res) => {
+  const anthropic = getAnthropicClient();
+  if (!anthropic) {
+    return res.status(400).json({
+      error: "AI Coach isn't configured yet. Add ANTHROPIC_API_KEY in Render's environment variables to enable it.",
+    });
+  }
+
   const userId = req.user.id;
   const limit = Math.min(Number(req.body?.limit) || 20, 100);
 
