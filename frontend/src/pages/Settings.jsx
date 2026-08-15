@@ -13,7 +13,7 @@ const defaultRules = {
 };
 
 const defaultScannerConfig = {
-  pairs: ["XAUUSD", "EURUSD", "GBPUSD", "US30", "NAS100"],
+  pairs: ["GOLD", "EURUSD", "GBPUSD", "US30Cash", "Nasdaq", "BTCUSD", "GER40Cash"],
   timeframes: ["D1", "H4", "M15"],
   min_grade_for_alert: "A",
   telegram_chat_id: "",
@@ -242,7 +242,7 @@ export default function Settings() {
         <div>
           <label className="label">Pairs to scan</label>
           <div className="flex flex-wrap gap-3">
-            {["XAUUSD", "EURUSD", "GBPUSD", "USDJPY", "US30", "NAS100", "BTCUSD"].map((p) => (
+            {["GOLD", "EURUSD", "GBPUSD", "USDJPY", "US30Cash", "Nasdaq", "BTCUSD", "GER40Cash"].map((p) => (
               <label key={p} className="flex items-center gap-2 text-sm">
                 <input type="checkbox" checked={scannerConfig.pairs.includes(p)} onChange={() => togglePair(p)} />
                 {p}
