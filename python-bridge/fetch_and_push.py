@@ -40,7 +40,7 @@ TIMEFRAME_MAP = {
 }
 
 # Edit this to match the pairs/timeframes configured in Settings -> Scanner
-PAIRS = ["GOLD", "EURUSD", "GBPUSD", "US30Cash", "Nasdaq"]
+PAIRS = ["GOLD", "EURUSD", "GBPUSD", "US30Cash", "Nasdaq", "BTCUSD", "GER40Cash"]
 TIMEFRAMES = ["D1", "H4", "M15"]
 CANDLES_PER_PUSH = 150
 POLL_SECONDS = 60 * 5  # push every 5 minutes; the backend scans every 15
