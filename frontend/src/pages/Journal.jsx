@@ -1,0 +1,102 @@
+import { useEffect, useState } from "react";
+import { supabase } from "../lib/supabaseClient";
+import TradeForm from "../components/TradeForm";
+import { Plus } from "lucide-react";
+
+export default function Journal() {
+  const [trades, setTrades] = useState([]);
+  const [showForm, setShowForm] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  async function loadTrades() {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("trades")
+      .select("*")
+      .order("trade_date", { ascending: false })
+      .order("created_at", { ascending: false });
+
+    if (error) setError(error.message);
+    else setTrades(data);
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    loadTrades();
+  }, []);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-semibold">Journal</h2>
+          <p className="text-sm text-gray-500">Every trade, logged the same way, every time.</p>
+        </div>
+        <button className="btn-primary flex items-center gap-2" onClick={() => setShowForm((s) => !s)}>
+          <Plus size={16} /> {showForm ? "Close" : "Add Trade"}
+        </button>
+      </div>
+
+      {showForm && (
+        <TradeForm
+          onSaved={() => {
+            setShowForm(false);
+            loadTrades();
+          }}
+          onCancel={() => setShowForm(false)}
+        />
+      )}
+
+      {error && <p className="text-bad">{error}</p>}
+      {loading ? (
+        <p className="text-gray-500">Loading...</p>
+      ) : trades.length === 0 ? (
+        <p className="text-gray-500">No trades logged yet.</p>
+      ) : (
+        <div className="card overflow-x-auto">
+          <table className="w-full text-sm min-w-[900px]">
+            <thead>
+              <tr className="text-left text-gray-500 text-xs uppercase">
+                <th className="pb-2 pr-3">Date</th>
+                <th className="pb-2 pr-3">Pair</th>
+                <th className="pb-2 pr-3">Dir</th>
+                <th className="pb-2 pr-3">Session</th>
+                <th className="pb-2 pr-3">Model</th>
+                <th className="pb-2 pr-3">Risk %</th>
+                <th className="pb-2 pr-3">R:R</th>
+                <th className="pb-2 pr-3">Realized R</th>
+                <th className="pb-2 pr-3">Outcome</th>
+                <th className="pb-2 pr-3">Emotion</th>
+                <th className="pb-2 pr-3">Plan?</th>
+              </tr>
+            </thead>
+            <tbody>
+              {trades.map((t) => (
+                <tr key={t.id} className="border-t border-line">
+                  <td className="py-2 pr-3">{t.trade_date}</td>
+                  <td className="py-2 pr-3">{t.pair}</td>
+                  <td className="py-2 pr-3 capitalize">{t.direction}</td>
+                  <td className="py-2 pr-3">{t.session}</td>
+                  <td className="py-2 pr-3">{t.model}</td>
+                  <td className="py-2 pr-3">{t.risk_percent}</td>
+                  <td className="py-2 pr-3">{t.planned_rr}</td>
+                  <td
+                    className={`py-2 pr-3 ${
+                      t.realized_r > 0 ? "text-good" : t.realized_r < 0 ? "text-bad" : ""
+                    }`}
+                  >
+                    {t.realized_r ?? "—"}
+                  </td>
+                  <td className="py-2 pr-3 capitalize">{t.outcome}</td>
+                  <td className="py-2 pr-3">{t.emotion_before}</td>
+                  <td className="py-2 pr-3">{t.followed_plan ? "Yes" : "No"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
